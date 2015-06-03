@@ -5,6 +5,9 @@ var RaisedButton = require('material-ui/lib/raised-button');
 var ThemeManager = require('material-ui/lib/styles/theme-manager')();
 var Colors = require('material-ui/lib/styles/colors');
 
+var mui = require('material-ui/lib/menu');
+var Menu = mui.Menu; //require('material-ui');
+var _ = require('lodash');
 var scopes = require('../../util/scopes');
 
 var Main = React.createClass({
@@ -27,25 +30,40 @@ var Main = React.createClass({
 
   render: function() {
 
-    var containerStyle = {
-      textAlign: 'center',
-      paddingTop: '200px'
+    var styles = {
+      container: {
+        textAlign: 'center',
+        paddingTop: '200px'
+      },
+      menu: {
+        width:200
+      }
     };
 
+    //http://callemall.github.io/material-ui/#/components/menus
+    var nestedMenuItems = (function recurseMenu(lvl){
+      return _.map(lvl, function(v,k){
+        if (_.isEmpty(v.children))
+          return {payload:k, text:v.name};
+        return { type: mui.MenuItem.Types.NESTED, text:v.name, items: recurseMenu(v.children) };
+      });
+    })(scopes);
+
     return (
-      <div style={containerStyle}>
+      <div style={styles.container}>
 
         <h1>material-ui</h1>
         <h2>example project</h2>
 
-        <RaisedButton label="Super Secret Password" primary={true} onTouchTap={this._handleTouchTap} />
+        <Menu menuItems={nestedMenuItems} autoWidth={true} style={styles.menu}/>
 
+        <RaisedButton label="Start Timer" primary={true} onTouchTap={this._handleTouchTap} />
       </div>
     );
   },
 
   _handleTouchTap: function() {
-    alert('1-2-3-4-5');
+    alert('Timer Started');
   }
   
 });
