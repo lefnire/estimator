@@ -5,6 +5,8 @@ var RaisedButton = require('material-ui/lib/raised-button');
 var ThemeManager = require('material-ui/lib/styles/theme-manager')();
 var Colors = require('material-ui/lib/styles/colors');
 
+var scopes = require('../../util/scopes');
+
 var Main = React.createClass({
 
   childContextTypes: {
