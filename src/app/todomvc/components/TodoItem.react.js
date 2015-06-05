@@ -25,7 +25,7 @@ var TodoItem = React.createClass({
     var todo = this.props.todo;
 
     var children;
-    if (todo.children) {
+    if (!_.isEmpty(todo.children)) {
       children = _.map(todo.children, (v=>
         (<TodoItem todo={v} />)
       ));
@@ -39,7 +39,7 @@ var TodoItem = React.createClass({
           className="edit"
           onSave={this._onSave}
           value={todo.text}
-          id={todo.id}
+          todo={todo}
         />;
     }
 
@@ -88,12 +88,12 @@ var TodoItem = React.createClass({
    * @param  {string} text
    */
   _onSave(text) {
-    TodoActions.updateText(this.props.todo.id, text);
+    TodoActions.updateText(this.props.todo, text);
     this.setState({isEditing: false});
   },
 
   _onDestroyClick() {
-    TodoActions.destroy(this.props.todo.id);
+    TodoActions.destroy(this.props.todo);
   }
 
 });

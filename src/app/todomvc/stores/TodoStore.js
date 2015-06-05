@@ -2,99 +2,79 @@ var AppDispatcher = require('../dispatcher/AppDispatcher');
 var {EventEmitter} = require('events');
 var TodoConstants = require('../constants/TodoConstants');
 var _ = require('lodash');
+var uuid = require('node-uuid');
 
 var CHANGE_EVENT = 'change';
 
-var _todos = {};
+var _todos = {
+  children:{}
+};
 
-/**
- * Create a TODO item.
- * @param  {string} text The content of the TODO
- */
 function create(text) {
-  var id = ( _.isEmpty(_todos) ? 0 : _.max(_todos, 'id').id )+1;
-  _todos[id] = {
+  var id = uuid.v4();
+  _todos.children[id] = {
     id: id,
     complete: false,
-    text: text
+    text: text,
+    parent: _todos,
+    children: {},
+    sort: ( _.isEmpty(_todos.children) ? 0 : _.max(_todos.children, 'sort').sort)+1
   };
+  console.dir(_todos);
 }
 
-/**
- * Update a TODO item.
- * @param  {string} id
- * @param {object} updates An object literal containing only the data to be
- *     updated.
- */
-function update(id, updates) {
-  _todos[id] = _.assign({}, _todos[id], updates);
+function update(todo, updates) {
+  todo.parent.children[todo.id] = _.assign({}, todo, updates);
 }
 
-/**
- * Update all of the TODO items with the same object.
- *     the data to be updated.  Used to mark all TODOs as completed.
- * @param  {object} updates An object literal containing only the data to be
- *     updated.
-
- */
 function updateAll(updates) {
-  _.each(_todos, (v,k)=>update(k,updates));
+  //fixme
+  //_.each(_todos, (v,k)=>update(k,updates));
 }
 
-/**
- * Delete a TODO item.
- * @param  {string} id
- */
-function destroy(id) {
-  delete _todos[id];
+function destroy(todo) {
+  delete todo.parent.children[todo.id];
 }
 
-/**
- * Delete all the completed TODO items.
- */
 function destroyCompleted() {
-  _.each(_todos, (v,k)=>{v.complete && destroy(k)});
+  //fixme
+  //_.each(_todos, (v,k)=>{v.complete && destroy(k)});
 }
 
-function indent(id) {
-  var parent = _todos[id-1];
-  if (!parent.children) parent.children = {};
-  parent.children[id] = _todos[id];
-  delete _todos[id];
+function indent(todo) {
+  var sorted = _.sortBy(todo.parent.children, 'sort');
+  if (sorted.length===1) return; // can't indent any further
+  var prev = todo.parent.children[ sorted[_.findIndex(sorted,{id:todo.id})-1].id ];
+  delete todo.parent.children[todo.id];
+  todo.parent = prev;
+  prev.children[todo.id] = todo;
+}
+function outdent(todo) {
+  var grandpa = todo.parent.parent;
+  if (!grandpa) return; // top level
+  delete todo.parent.children[todo.id];
+  todo.parent = grandpa;
+  grandpa.children[todo.id] = todo;
 }
 
 var TodoStore = _.assign({}, EventEmitter.prototype, {
 
-  /**
-   * Tests whether all the remaining TODO items are marked as completed.
-   * @return {boolean}
-   */
   areAllComplete() {
-    return _.every(_todos, {complete:true});
+    return _.every(_todos.children, {complete:true});
   },
 
-  /**
-   * Get the entire collection of TODOs.
-   * @return {object}
-   */
   getAll() {
-    return _todos;
+    return _todos.children;
   },
 
   emitChange() {
     this.emit(CHANGE_EVENT);
   },
 
-  /**
-   * @param {function} callback
-   */
   addChangeListener(callback) {
     this.on(CHANGE_EVENT, callback);
   },
 
-  /**
-   * @param {function} callback
-   */
   removeChangeListener(callback) {
     this.removeListener(CHANGE_EVENT, callback);
   }
@@ -123,25 +103,25 @@ AppDispatcher.register(function(action) {
       break;
 
     case TodoConstants.TODO_UNDO_COMPLETE:
-      update(action.id, {complete: false});
+      update(action.todo, {complete: false});
       TodoStore.emitChange();
       break;
 
     case TodoConstants.TODO_COMPLETE:
-      update(action.id, {complete: true});
+      update(action.todo, {complete: true});
       TodoStore.emitChange();
       break;
 
     case TodoConstants.TODO_UPDATE_TEXT:
       text = action.text.trim();
       if (text !== '') {
-        update(action.id, {text: text});
+        update(action.todo, {text: text});
         TodoStore.emitChange();
       }
       break;
 
     case TodoConstants.TODO_DESTROY:
-      destroy(action.id);
+      destroy(action.todo);
       TodoStore.emitChange();
       break;
 
@@ -151,12 +131,12 @@ AppDispatcher.register(function(action) {
       break;
 
     case TodoConstants.TODO_INDENT:
-      indent(action.id);
+      indent(action.todo);
       TodoStore.emitChange();
       break;
 
     case TodoConstants.TODO_OUTDENT:
-      //TODO
+      outdent(action.todo);
       TodoStore.emitChange();
       break;
 

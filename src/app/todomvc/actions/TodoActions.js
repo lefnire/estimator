@@ -10,23 +10,22 @@ var TodoActions = {
     });
   },
 
-  updateText(id, text) {
+  updateText(todo, text) {
     AppDispatcher.dispatch({
       actionType: TodoConstants.TODO_UPDATE_TEXT,
-      id: id,
+      todo: todo,
       text: text
     });
   },
 
   toggleComplete(todo) {
-    var id = todo.id;
     var actionType = todo.complete ?
         TodoConstants.TODO_UNDO_COMPLETE :
         TodoConstants.TODO_COMPLETE;
 
     AppDispatcher.dispatch({
       actionType: actionType,
-      id: id
+      id: todo
     });
   },
 
@@ -36,10 +35,10 @@ var TodoActions = {
     });
   },
 
-  destroy(id) {
+  destroy(todo) {
     AppDispatcher.dispatch({
       actionType: TodoConstants.TODO_DESTROY,
-      id: id
+      todo: todo
     });
   },
 
@@ -49,17 +48,17 @@ var TodoActions = {
     });
   },
 
-  indent(id) {
+  indent(todo) {
     AppDispatcher.dispatch({
       actionType: TodoConstants.TODO_INDENT,
-      id: id
+      todo: todo
     });
   },
 
-  outdent(id) {
+  outdent(todo) {
     AppDispatcher.dispatch({
       actionType: TodoConstants.TODO_OUTDENT,
-      id: id
+      todo: todo
     });
   },
 

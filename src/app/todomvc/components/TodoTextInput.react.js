@@ -67,12 +67,12 @@ var TodoTextInput = React.createClass({
 
   _indent(evt){
     evt.preventDefault();
-    TodoActions.indent(this.props.id);
+    TodoActions.indent(this.props.todo);
 
   },
   _outdent(evt){
     evt.preventDefault();
-    TodoActions.outdent(this.props.id);
+    TodoActions.outdent(this.props.todo);
   }
 });
 

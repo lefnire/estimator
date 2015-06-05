@@ -25,7 +25,7 @@ var MainSection = React.createClass({
     var todos = [];
 
     _.each(allTodos, (v,k)=>{
-      todos.push(<TodoItem key={k} todo={allTodos[k]} />);
+      todos.push(<TodoItem key={k} todo={v} />);
     })
 
     return (
