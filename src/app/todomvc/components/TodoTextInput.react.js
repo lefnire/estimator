@@ -1,19 +1,24 @@
 var React = require('react');
-var ReactPropTypes = React.PropTypes;
+var {PropTypes} = React;
+var TodoActions = require('../actions/TodoActions');
+var {HotKeys} = require('react-hotkeys');
 
-var ENTER_KEY_CODE = 13;
-
+const keyMap = {
+  'indent': 'tab',
+  'outdent': 'shift+tab',
+  'save': 'enter'
+};
 var TodoTextInput = React.createClass({
 
   propTypes: {
-    className: ReactPropTypes.string,
-    id: ReactPropTypes.string,
-    placeholder: ReactPropTypes.string,
-    onSave: ReactPropTypes.func.isRequired,
-    value: ReactPropTypes.string
+    className: PropTypes.string,
+    id: PropTypes.string,
+    placeholder: PropTypes.string,
+    onSave: PropTypes.func.isRequired,
+    value: PropTypes.string
   },
 
-  getInitialState: function() {
+  getInitialState() {
     return {
       value: this.props.value || ''
     };
@@ -22,18 +27,24 @@ var TodoTextInput = React.createClass({
   /**
    * @return {object}
    */
-  render: function() /*object*/ {
+  render() {
+    const handlers = {
+      'indent': this._indent,
+      'outdent': this._outdent,
+      'enter': this._save
+    };
     return (
-      <input
-        className={this.props.className}
-        id={this.props.id}
-        placeholder={this.props.placeholder}
-        onBlur={this._save}
-        onChange={this._onChange}
-        onKeyDown={this._onKeyDown}
-        value={this.state.value}
-        autoFocus={true}
-      />
+      <HotKeys keyMap={keyMap} handlers={handlers}>
+        <input
+          className={this.props.className}
+          id={this.props.id}
+          placeholder={this.props.placeholder}
+          onBlur={this._save}
+          onChange={this._onChange}
+          value={this.state.value}
+          autoFocus={true}
+        />
+      </HotKeys>
     );
   },
 
@@ -41,31 +52,28 @@ var TodoTextInput = React.createClass({
    * Invokes the callback passed in as onSave, allowing this component to be
    * used in different ways.
    */
-  _save: function() {
+  _save() {
     this.props.onSave(this.state.value);
     this.setState({
       value: ''
     });
   },
 
-  /**
-   * @param {object} event
-   */
-  _onChange: function(/*object*/ event) {
+  _onChange(event) {
     this.setState({
       value: event.target.value
     });
   },
 
-  /**
-   * @param  {object} event
-   */
-  _onKeyDown: function(event) {
-    if (event.keyCode === ENTER_KEY_CODE) {
-      this._save();
-    }
-  }
+  _indent(evt){
+    evt.preventDefault();
+    TodoActions.indent(this.props.id);
 
+  },
+  _outdent(evt){
+    evt.preventDefault();
+    TodoActions.outdent(this.props.id);
+  }
 });
 
 module.exports = TodoTextInput;

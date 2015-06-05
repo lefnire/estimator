@@ -1,31 +1,32 @@
 var React = require('react');
-var ReactPropTypes = React.PropTypes;
+var {PropTypes} = React;
 var TodoActions = require('../actions/TodoActions');
 var TodoItem = require('./TodoItem.react');
+var _ = require('lodash');
 
 var MainSection = React.createClass({
 
   propTypes: {
-    allTodos: ReactPropTypes.object.isRequired,
-    areAllComplete: ReactPropTypes.bool.isRequired
+    allTodos: PropTypes.object.isRequired,
+    areAllComplete: PropTypes.bool.isRequired
   },
 
   /**
    * @return {object}
    */
-  render: function() {
+  render() {
     // This section should be hidden by default
     // and shown when there are todos.
-    if (Object.keys(this.props.allTodos).length < 1) {
+    if (_.size(this.props.allTodos) < 1) {
       return null;
     }
 
     var allTodos = this.props.allTodos;
     var todos = [];
 
-    for (var key in allTodos) {
-      todos.push(<TodoItem key={key} todo={allTodos[key]} />);
-    }
+    _.each(allTodos, (v,k)=>{
+      todos.push(<TodoItem key={k} todo={allTodos[k]} />);
+    })
 
     return (
       <section id="main">
@@ -41,10 +42,7 @@ var MainSection = React.createClass({
     );
   },
 
-  /**
-   * Event handler to mark all TODOs as complete
-   */
-  _onToggleCompleteAll: function() {
+  _onToggleCompleteAll() {
     TodoActions.toggleCompleteAll();
   }
 

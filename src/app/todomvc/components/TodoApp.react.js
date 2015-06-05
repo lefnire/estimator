@@ -16,22 +16,22 @@ function getTodoState() {
 
 var TodoApp = React.createClass({
 
-  getInitialState: function() {
+  getInitialState() {
     return getTodoState();
   },
 
-  componentDidMount: function() {
+  componentDidMount() {
     TodoStore.addChangeListener(this._onChange);
   },
 
-  componentWillUnmount: function() {
+  componentWillUnmount() {
     TodoStore.removeChangeListener(this._onChange);
   },
 
   /**
    * @return {object}
    */
-  render: function() {
+  render() {
   	return (
       <div>
         <Header />
@@ -44,10 +44,7 @@ var TodoApp = React.createClass({
   	);
   },
 
-  /**
-   * Event handler for 'change' events coming from the TodoStore
-   */
-  _onChange: function() {
+  _onChange() {
     this.setState(getTodoState());
   }
 

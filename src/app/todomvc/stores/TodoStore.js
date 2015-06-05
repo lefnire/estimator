@@ -1,7 +1,7 @@
 var AppDispatcher = require('../dispatcher/AppDispatcher');
-var EventEmitter = require('events').EventEmitter;
+var {EventEmitter} = require('events');
 var TodoConstants = require('../constants/TodoConstants');
-var assign = require('lodash').assign;
+var _ = require('lodash');
 
 var CHANGE_EVENT = 'change';
 
@@ -12,10 +12,7 @@ var _todos = {};
  * @param  {string} text The content of the TODO
  */
 function create(text) {
-  // Hand waving here -- not showing how this interacts with XHR or persistent
-  // server-side storage.
-  // Using the current timestamp + random number in place of a real id.
-  var id = (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
+  var id = ( _.isEmpty(_todos) ? 0 : _.max(_todos, 'id').id )+1;
   _todos[id] = {
     id: id,
     complete: false,
@@ -30,7 +27,7 @@ function create(text) {
  *     updated.
  */
 function update(id, updates) {
-  _todos[id] = assign({}, _todos[id], updates);
+  _todos[id] = _.assign({}, _todos[id], updates);
 }
 
 /**
@@ -41,9 +38,7 @@ function update(id, updates) {
 
  */
 function updateAll(updates) {
-  for (var id in _todos) {
-    update(id, updates);
-  }
+  _.each(_todos, (v,k)=>update(k,updates));
 }
 
 /**
@@ -58,51 +53,49 @@ function destroy(id) {
  * Delete all the completed TODO items.
  */
 function destroyCompleted() {
-  for (var id in _todos) {
-    if (_todos[id].complete) {
-      destroy(id);
-    }
-  }
+  _.each(_todos, (v,k)=>{v.complete && destroy(k)});
 }
 
-var TodoStore = assign({}, EventEmitter.prototype, {
+function indent(id) {
+  var parent = _todos[id-1];
+  if (!parent.children) parent.children = {};
+  parent.children[id] = _todos[id];
+  delete _todos[id];
+}
+
+var TodoStore = _.assign({}, EventEmitter.prototype, {
 
   /**
    * Tests whether all the remaining TODO items are marked as completed.
    * @return {boolean}
    */
-  areAllComplete: function() {
-    for (var id in _todos) {
-      if (!_todos[id].complete) {
-        return false;
-      }
-    }
-    return true;
+  areAllComplete() {
+    return _.every(_todos, {complete:true});
   },
 
   /**
    * Get the entire collection of TODOs.
    * @return {object}
    */
-  getAll: function() {
+  getAll() {
     return _todos;
   },
 
-  emitChange: function() {
+  emitChange() {
     this.emit(CHANGE_EVENT);
   },
 
   /**
    * @param {function} callback
    */
-  addChangeListener: function(callback) {
+  addChangeListener(callback) {
     this.on(CHANGE_EVENT, callback);
   },
 
   /**
    * @param {function} callback
    */
-  removeChangeListener: function(callback) {
+  removeChangeListener(callback) {
     this.removeListener(CHANGE_EVENT, callback);
   }
 });
@@ -154,6 +147,16 @@ AppDispatcher.register(function(action) {
 
     case TodoConstants.TODO_DESTROY_COMPLETED:
       destroyCompleted();
+      TodoStore.emitChange();
+      break;
+
+    case TodoConstants.TODO_INDENT:
+      indent(action.id);
+      TodoStore.emitChange();
+      break;
+
+    case TodoConstants.TODO_OUTDENT:
+      //TODO
       TodoStore.emitChange();
       break;
 

@@ -7,7 +7,7 @@ var Header = React.createClass({
   /**
    * @return {object}
    */
-  render: function() {
+  render() {
     return (
       <header id="header">
         <TodoTextInput
@@ -25,7 +25,7 @@ var Header = React.createClass({
    * in different ways.
    * @param {string} text
    */
-  _onSave: function(text) {
+  _onSave(text) {
     if (text.trim()){
       TodoActions.create(text);
     }

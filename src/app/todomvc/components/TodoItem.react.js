@@ -1,17 +1,18 @@
 var React = require('react');
-var ReactPropTypes = React.PropTypes;
+var {PropTypes} = React;
 var TodoActions = require('../actions/TodoActions');
 var TodoTextInput = require('./TodoTextInput.react');
+var _ = require('lodash');
 
 var cx = require('react/lib/cx');
 
 var TodoItem = React.createClass({
 
   propTypes: {
-   todo: ReactPropTypes.object.isRequired
+   todo: PropTypes.object.isRequired
   },
 
-  getInitialState: function() {
+  getInitialState() {
     return {
       isEditing: false
     };
@@ -20,8 +21,16 @@ var TodoItem = React.createClass({
   /**
    * @return {object}
    */
-  render: function() {
+  render() {
     var todo = this.props.todo;
+
+    var children;
+    if (todo.children) {
+      children = _.map(todo.children, (v=>
+        (<TodoItem todo={v} />)
+      ));
+      children = (<ul>{children}</ul>);
+    }
 
     var input;
     if (this.state.isEditing) {
@@ -30,6 +39,7 @@ var TodoItem = React.createClass({
           className="edit"
           onSave={this._onSave}
           value={todo.text}
+          id={todo.id}
         />;
     }
 
@@ -58,15 +68,16 @@ var TodoItem = React.createClass({
           <button className="destroy" onClick={this._onDestroyClick}>x</button>
         </div>
         {input}
+        {children}
       </li>
     );
   },
 
-  _onToggleComplete: function() {
+  _onToggleComplete() {
     TodoActions.toggleComplete(this.props.todo);
   },
 
-  _onDoubleClick: function() {
+  _onDoubleClick() {
     this.setState({isEditing: true});
   },
 
@@ -76,12 +87,12 @@ var TodoItem = React.createClass({
    * in different ways.
    * @param  {string} text
    */
-  _onSave: function(text) {
+  _onSave(text) {
     TodoActions.updateText(this.props.todo.id, text);
     this.setState({isEditing: false});
   },
 
-  _onDestroyClick: function() {
+  _onDestroyClick() {
     TodoActions.destroy(this.props.todo.id);
   }
 

@@ -1,30 +1,26 @@
 var React = require('react');
-var ReactPropTypes = React.PropTypes;
+var {PropTypes} = React;
 var TodoActions = require('../actions/TodoActions');
+_ = require('lodash');
 
 var Footer = React.createClass({
 
   propTypes: {
-    allTodos: ReactPropTypes.object.isRequired
+    allTodos: PropTypes.object.isRequired
   },
 
   /**
    * @return {object}
    */
-  render: function() {
+  render() {
     var allTodos = this.props.allTodos;
-    var total = Object.keys(allTodos).length;
+    var total = _.size(allTodos);
 
     if (total === 0) {
       return null;
     }
 
-    var completed = 0;
-    for (var key in allTodos) {
-      if (allTodos[key].complete) {
-        completed++;
-      }
-    }
+    var completed = _.filter(allTodos, {complete:true}).length;
 
     var itemsLeft = total - completed;
     var itemsLeftPhrase = itemsLeft === 1 ? ' item ' : ' items ';
@@ -54,10 +50,7 @@ var Footer = React.createClass({
     );
   },
 
-  /**
-   * Event handler to delete all completed TODOs
-   */
-  _onClearCompletedClick: function() {
+  _onClearCompletedClick() {
     TodoActions.destroyCompleted();
   }
 

@@ -16,19 +16,19 @@ var Main = React.createClass({
     muiTheme: React.PropTypes.object
   },
 
-  getChildContext: function() {
+  getChildContext() {
     return {
       muiTheme: ThemeManager.getCurrentTheme()
     };
   },
 
-  componentWillMount: function() {
+  componentWillMount() {
     ThemeManager.setPalette({
       accent1Color: Colors.deepOrange500
     });
   },
 
-  render: function() {
+  render() {
 
     var styles = {
       container: {
@@ -62,7 +62,7 @@ var Main = React.createClass({
     );
   },
 
-  _handleTouchTap: function() {
+  _handleTouchTap() {
     alert('Timer Started');
   }
   
