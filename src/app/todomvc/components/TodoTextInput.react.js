@@ -6,7 +6,7 @@ var {HotKeys} = require('react-hotkeys');
 const keyMap = {
   'indent': 'tab',
   'outdent': 'shift+tab',
-  'save': 'enter'
+  'enter': 'enter'
 };
 var TodoTextInput = React.createClass({
 
@@ -16,7 +16,8 @@ var TodoTextInput = React.createClass({
     placeholder: PropTypes.string,
     onSave: PropTypes.func.isRequired,
     value: PropTypes.string,
-    autofocus: PropTypes.bool
+    autofocus: PropTypes.bool,
+    todo: PropTypes.object.isRequired
   },
 
   getInitialState() {
@@ -32,7 +33,7 @@ var TodoTextInput = React.createClass({
     const handlers = {
       'indent': this._indent,
       'outdent': this._outdent,
-      'enter': this._save
+      'enter': this._saveAndCreate
     };
     return (
       <HotKeys keyMap={keyMap} handlers={handlers}>
@@ -44,7 +45,7 @@ var TodoTextInput = React.createClass({
           onBlur={this._save}
           onChange={this._onChange}
           value={this.state.value}
-          autoFocus={!!this.props.isAddInput}
+          autoFocus={!!this.props.autofocus}
         />
       </HotKeys>
     );
@@ -55,11 +56,13 @@ var TodoTextInput = React.createClass({
    * used in different ways.
    */
   _save() {
+    // fixme it's calling blur & create at same time
     this.props.onSave(this.state.value);
-    if (!this.props.isAddInput) return;
-    this.setState({
-      value: ''
-    });
+  },
+
+  _saveAndCreate() {
+    this._save();
+    TodoActions.create(this.props.todo, '');
   },
 
   _onChange(event) {

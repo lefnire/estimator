@@ -4,8 +4,6 @@ var TodoActions = require('../actions/TodoActions');
 var TodoTextInput = require('./TodoTextInput.react');
 var _ = require('lodash');
 
-var cx = require('react/lib/cx');
-
 var TodoItem = React.createClass({
 
   propTypes: {
@@ -17,14 +15,12 @@ var TodoItem = React.createClass({
    */
   render() {
     var todo = this.props.todo;
-
-    var children;
-    if (!_.isEmpty(todo.children)) {
-      children = _.map(todo.children, (v=>
-        (<TodoItem todo={v} />)
-      ));
-      children = (<ul>{children}</ul>);
-    }
+    var next = todo.next ? <TodoItem todo={todo.next} /> : null;
+    var children = !todo.child ? null : (
+      <ul className='list-unstyle'>
+        <TodoItem todo={todo.child} />
+      </ul>
+    );
 
     // List items should get the class 'editing' when editing
     // and 'completed' when marked as completed.
@@ -32,24 +28,28 @@ var TodoItem = React.createClass({
     // This differentiation between classification and state becomes important
     // in the naming of view actions toggleComplete() vs. destroyCompleted().
     return (
-      <li key={todo.id} className="row">
-        <div className="col-lg-6">
-          <div className="input-group">
-            <span className="input-group-addon">
-              <input type="checkbox" checked={todo.complete} onChange={this._onToggleComplete} />
-            </span>
-            <TodoTextInput
-              onSave={this._onSave}
-              value={todo.text}
-              todo={todo}
-              className='form-control'
-              />
+      <div>
+        <li key={todo.id} className="row">
+          <div className="col-lg-6">
+            <div className="input-group">
+              <span className="input-group-addon">
+                <input type="checkbox" checked={todo.complete} onChange={this._onToggleComplete} />
+              </span>
+              <TodoTextInput
+                onSave={this._onSave}
+                value={todo.text}
+                todo={todo}
+                className='form-control'
+                autofocus={!todo.next}
+                />
+            </div>
           </div>
-        </div>
 
-        <button className="btn btn-small" onClick={this._onDestroyClick}>x</button>
-        {children}
-      </li>
+          <button className="btn btn-small" onClick={this._onDestroyClick}>x</button>
+          {children}
+        </li>
+        {next}
+      </div>
     );
   },
 
