@@ -29,7 +29,7 @@ var MainSection = React.createClass({
     })
 
     return (
-      <section id="main">
+      <section id="main" className='container-fluid'>
         <input
           id="toggle-all"
           type="checkbox"

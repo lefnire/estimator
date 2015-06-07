@@ -12,12 +12,6 @@ var TodoItem = React.createClass({
    todo: PropTypes.object.isRequired
   },
 
-  getInitialState() {
-    return {
-      isEditing: false
-    };
-  },
-
   /**
    * @return {object}
    */
@@ -32,42 +26,28 @@ var TodoItem = React.createClass({
       children = (<ul>{children}</ul>);
     }
 
-    var input;
-    if (this.state.isEditing) {
-      input =
-        <TodoTextInput
-          className="edit"
-          onSave={this._onSave}
-          value={todo.text}
-          todo={todo}
-        />;
-    }
-
     // List items should get the class 'editing' when editing
     // and 'completed' when marked as completed.
     // Note that 'completed' is a classification while 'complete' is a state.
     // This differentiation between classification and state becomes important
     // in the naming of view actions toggleComplete() vs. destroyCompleted().
     return (
-      <li
-        className={cx({
-          'completed': todo.complete,
-          'editing': this.state.isEditing
-        })}
-        key={todo.id}>
-        <div className="view">
-          <input
-            className="toggle"
-            type="checkbox"
-            checked={todo.complete}
-            onChange={this._onToggleComplete}
-          />
-          <label onDoubleClick={this._onDoubleClick}>
-            {todo.text}
-          </label>
-          <button className="destroy" onClick={this._onDestroyClick}>x</button>
+      <li key={todo.id} className="row">
+        <div className="col-lg-6">
+          <div className="input-group">
+            <span className="input-group-addon">
+              <input type="checkbox" checked={todo.complete} onChange={this._onToggleComplete} />
+            </span>
+            <TodoTextInput
+              onSave={this._onSave}
+              value={todo.text}
+              todo={todo}
+              className='form-control'
+              />
+          </div>
         </div>
-        {input}
+
+        <button className="btn btn-small" onClick={this._onDestroyClick}>x</button>
         {children}
       </li>
     );
@@ -75,10 +55,6 @@ var TodoItem = React.createClass({
 
   _onToggleComplete() {
     TodoActions.toggleComplete(this.props.todo);
-  },
-
-  _onDoubleClick() {
-    this.setState({isEditing: true});
   },
 
   /**
@@ -89,7 +65,6 @@ var TodoItem = React.createClass({
    */
   _onSave(text) {
     TodoActions.updateText(this.props.todo, text);
-    this.setState({isEditing: false});
   },
 
   _onDestroyClick() {

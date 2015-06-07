@@ -15,7 +15,8 @@ var TodoTextInput = React.createClass({
     id: PropTypes.string,
     placeholder: PropTypes.string,
     onSave: PropTypes.func.isRequired,
-    value: PropTypes.string
+    value: PropTypes.string,
+    autofocus: PropTypes.bool
   },
 
   getInitialState() {
@@ -36,13 +37,14 @@ var TodoTextInput = React.createClass({
     return (
       <HotKeys keyMap={keyMap} handlers={handlers}>
         <input
+          type="text"
           className={this.props.className}
           id={this.props.id}
           placeholder={this.props.placeholder}
           onBlur={this._save}
           onChange={this._onChange}
           value={this.state.value}
-          autoFocus={true}
+          autoFocus={!!this.props.isAddInput}
         />
       </HotKeys>
     );
@@ -54,6 +56,7 @@ var TodoTextInput = React.createClass({
    */
   _save() {
     this.props.onSave(this.state.value);
+    if (!this.props.isAddInput) return;
     this.setState({
       value: ''
     });

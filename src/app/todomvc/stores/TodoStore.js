@@ -20,7 +20,6 @@ function create(text) {
     children: {},
     sort: ( _.isEmpty(_todos.children) ? 0 : _.max(_todos.children, 'sort').sort)+1
   };
-  console.dir(_todos);
 }
 
 function update(todo, updates) {

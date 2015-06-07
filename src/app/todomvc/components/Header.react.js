@@ -14,6 +14,7 @@ var Header = React.createClass({
           id="new-todo"
           placeholder="Add Todo"
           onSave={this._onSave}
+          isAddInput={true}
         />
       </header>
     );
