@@ -3,6 +3,8 @@ var {PropTypes} = React;
 var TodoActions = require('../actions/TodoActions');
 var TodoTextInput = require('./TodoTextInput.react');
 var _ = require('lodash');
+var moment = require('moment');
+var Timer = require('./Timer');
 
 var TodoItem = React.createClass({
 
@@ -10,9 +12,6 @@ var TodoItem = React.createClass({
    todo: PropTypes.object.isRequired
   },
 
-  /**
-   * @return {object}
-   */
   render() {
     var todo = this.props.todo;
     var next = todo.next ? <TodoItem todo={todo.next} /> : null;
@@ -22,19 +21,14 @@ var TodoItem = React.createClass({
       </ul>
     );
 
-    // List items should get the class 'editing' when editing
-    // and 'completed' when marked as completed.
-    // Note that 'completed' is a classification while 'complete' is a state.
-    // This differentiation between classification and state becomes important
-    // in the naming of view actions toggleComplete() vs. destroyCompleted().
     return (
       <div>
         <li key={todo.id} className="row">
-          <div className="col-lg-6">
             <div className="input-group">
               <span className="input-group-addon">
                 <input type="checkbox" checked={todo.complete} onChange={this._onToggleComplete} />
               </span>
+
               <TodoTextInput
                 onSave={this._onSave}
                 value={todo.text}
@@ -42,11 +36,22 @@ var TodoItem = React.createClass({
                 className='form-control'
                 autofocus={!todo.next}
                 />
-            </div>
-          </div>
 
-          <button className="btn btn-small" onClick={this._onDestroyClick}>x</button>
+              <Timer todo={todo} />
+
+              <div className="input-group-addon dropdown">
+                <button type="button" id="dropdownMenu1" data-toggle="dropdown">
+                  <span className="caret"></span>
+                </button>
+                <ul className="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                  <li role="presentation"><a role="menuitem" tabIndex="-1" onClick={this._onDestroyClick}>Delete</a></li>
+                  <li role="presentation"><a role="menuitem" tabIndex="-1" href="#">Another action</a></li>
+                </ul>
+              </div>
+
+            </div>
           {children}
+
         </li>
         {next}
       </div>
@@ -69,7 +74,7 @@ var TodoItem = React.createClass({
 
   _onDestroyClick() {
     TodoActions.destroy(this.props.todo);
-  }
+  },
 
 });
 

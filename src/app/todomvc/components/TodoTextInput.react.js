@@ -6,7 +6,8 @@ var {HotKeys} = require('react-hotkeys');
 const keyMap = {
   'indent': 'tab',
   'outdent': 'shift+tab',
-  'enter': 'enter'
+  'enter': 'enter',
+  'clock': 'ctrl+c'
 };
 var TodoTextInput = React.createClass({
 
@@ -33,7 +34,8 @@ var TodoTextInput = React.createClass({
     const handlers = {
       'indent': this._indent,
       'outdent': this._outdent,
-      'enter': this._saveAndCreate
+      'enter': this._saveAndCreate,
+      'clock': this._clock
     };
     return (
       <HotKeys keyMap={keyMap} handlers={handlers}>
@@ -79,6 +81,9 @@ var TodoTextInput = React.createClass({
   _outdent(evt){
     evt.preventDefault();
     TodoActions.outdent(this.props.todo);
+  },
+  _clock(evt){
+    TodoActions.clock(this.props.todo);
   }
 });
 

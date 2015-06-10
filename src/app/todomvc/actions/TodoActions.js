@@ -51,6 +51,13 @@ var TodoActions = {
     });
   },
 
+  clock(todo) {
+    AppDispatcher.dispatch({
+      actionType: TodoConstants.TODO_CLOCK,
+      todo: todo
+    });
+  }
+
 };
 
 module.exports = TodoActions;

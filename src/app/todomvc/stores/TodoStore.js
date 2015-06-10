@@ -11,6 +11,21 @@ var CHANGE_EVENT = 'change';
 var _todos = {};
 _todos.child = create(undefined, ''); // start with a blank task
 
+function _splice(todo) {
+  var {next, prev, parent} = todo;
+  if (prev) prev.next = next;
+  if (next) next.prev = prev;
+  if (parent.child === todo) parent.child = next;
+}
+function _insertAfter(prev, todo){
+  if (!prev) return;
+  var next = prev.next;
+  prev.next = todo;
+  if (next) next.prev = todo;
+  todo.next = next;
+  todo.prev = prev;
+}
+
 function create(prev, text) {
   var task = {
     id: uuid.v4(),
@@ -35,21 +50,6 @@ function destroy(todo) {
   _splice(todo);
 }
 
-function _splice(todo) {
-  var {next, prev, parent} = todo;
-  if (prev) prev.next = next;
-  if (next) next.prev = prev;
-  if (parent.child === todo) parent.child = next;
-}
-function _insertAfter(prev, todo){
-  if (!prev) return;
-  var next = prev.next;
-  prev.next = todo;
-  if (next) next.prev = todo;
-  todo.next = next;
-  todo.prev = prev;
-}
-
 function indent(todo) {
   if (!todo.prev) return; // first item
   _splice(todo);
@@ -72,6 +72,12 @@ function outdent(todo) {
   _insertAfter(todo.parent, todo);
   if (todo.parent.child == todo) todo.parent.child = undefined;
   todo.parent = parent.parent;
+}
+
+function clock(todo) {
+  todo.clocking = !todo.clocking;
+  if (todo.clocking)
+    todo.startTime = Date.now();
 }
 
 var TodoStore = _.assign({}, EventEmitter.prototype, {
@@ -134,6 +140,11 @@ AppDispatcher.register(function(action) {
 
     case TodoConstants.TODO_OUTDENT:
       outdent(action.todo);
+      TodoStore.emitChange();
+      break;
+
+    case TodoConstants.TODO_CLOCK:
+      clock(action.todo);
       TodoStore.emitChange();
       break;
 
